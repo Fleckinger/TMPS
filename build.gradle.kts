@@ -7,6 +7,10 @@ plugins {
     kotlin("plugin.spring") version "1.8.22"
 }
 
+allOpen {
+    annotation("javax.persistence.Entity")
+}
+
 group = "com.fleckinger"
 version = "0.0.1-SNAPSHOT"
 
@@ -20,6 +24,7 @@ repositories {
 
 dependencies {
     implementation("org.springframework.boot:spring-boot-starter")
+    implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
     implementation("org.telegram:telegrambots:6.8.0")

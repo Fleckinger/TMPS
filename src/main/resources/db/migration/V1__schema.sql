@@ -1,28 +1,40 @@
-create table usr
+CREATE TABLE usr
 (
-    id                 uuid not null,
-    telegram_bot_token varchar(64),
-    channel_id         varchar(64),
-    username           varchar(64),
-    time_zone          timestamp,
-    primary key (id)
+    id               UUID NOT NULL UNIQUE,
+    telegram_user_id BIGINT UNIQUE,
+    channel_id       BIGINT,
+    username         VARCHAR(64),
+    time_zone        VARCHAR(64),
+    PRIMARY KEY (id)
 );
 
-create table post
+CREATE TABLE post
 (
-    id        uuid not null,
-    text      varchar(4096),
-    post_date timestamp,
-    is_posted boolean,
-    primary key (id)
+    id        UUID NOT NULL UNIQUE,
+    user_id   UUID NOT NULL,
+    text      VARCHAR(4096),
+    post_date TIMESTAMP,
+    is_posted BOOLEAN,
+    PRIMARY KEY (id)
 );
 
-create table media
+CREATE TABLE media
 (
-    id       uuid not null,
-    type     varchar(64),
-    field_id varchar(64),
-    index    smallint,
-    primary key (id)
+    id       UUID NOT NULL UNIQUE,
+    post_id  UUID NOT NULL,
+    type     VARCHAR(64),
+    field_id VARCHAR(64),
+    index    SMALLINT,
+    PRIMARY KEY (id),
+    FOREIGN KEY (post_id) REFERENCES post (id)
 );
 
+ALTER TABLE IF EXISTS post
+    ADD CONSTRAINT fk_post_user
+        FOREIGN KEY (user_id)
+            REFERENCES usr;
+
+ALTER TABLE IF EXISTS media
+    ADD CONSTRAINT fk_media_post
+        FOREIGN KEY (post_id)
+            REFERENCES post;

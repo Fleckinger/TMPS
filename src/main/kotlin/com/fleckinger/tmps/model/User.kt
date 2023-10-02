@@ -11,11 +11,11 @@ class User(
     @Column(name = "id")
     var id: UUID? = null,
 
-    @Column(name = "telegram_bot_token")
-    var telegramBotToken: String? = null,
+    @Column(name = "telegram_user_id")
+    var telegramUserId: Long? = null,
 
     @Column(name = "channel_id")
-    var channelId: String? = null,
+    var channelId: Long? = null,
 
     @Column(name = "username")
     var username: String? = null,
@@ -37,7 +37,7 @@ class User(
         other as User
 
         if (id != other.id) return false
-        if (telegramBotToken != other.telegramBotToken) return false
+        if (telegramUserId != other.telegramUserId) return false
         if (channelId != other.channelId) return false
         if (username != other.username) return false
         if (posts != other.posts) return false
@@ -48,7 +48,7 @@ class User(
 
     override fun hashCode(): Int {
         var result = id?.hashCode() ?: 0
-        result = 31 * result + (telegramBotToken?.hashCode() ?: 0)
+        result = 31 * result + (telegramUserId?.hashCode() ?: 0)
         result = 31 * result + (channelId?.hashCode() ?: 0)
         result = 31 * result + (username?.hashCode() ?: 0)
         result = 31 * result + posts.hashCode()

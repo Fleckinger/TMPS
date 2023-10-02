@@ -13,4 +13,3 @@ spring:
 telegram:
   bot-name: ${TELEGRAM_BOT_NAME}
   bot-token: ${TELEGRAM_BOT_TOKEN}
-  channel-id: ${TELEGRAM_CHANNEL_ID}

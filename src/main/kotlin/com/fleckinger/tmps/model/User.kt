@@ -20,8 +20,8 @@ class User(
     @Column(name = "username")
     var username: String? = null,
 
-    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = [CascadeType.ALL], orphanRemoval = true)
-    var posts: List<Post> = emptyList(),
+    @OneToMany(mappedBy = "user", cascade = [CascadeType.ALL], orphanRemoval = true)
+    var posts: MutableList<Post> = mutableListOf(),
 
     @Column(name = "time_zone")
     var timeZone: String? = null
@@ -55,6 +55,4 @@ class User(
         result = 31 * result + (timeZone?.hashCode() ?: 0)
         return result
     }
-
-
 }

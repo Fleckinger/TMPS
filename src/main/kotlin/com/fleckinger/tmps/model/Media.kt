@@ -14,11 +14,15 @@ class Media(
     @Column(name = "type")
     val type: String = MediaTypes.NONE.name,
 
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "post_id", foreignKey = ForeignKey(name = "fk_media_post"))
+    var post: Post? = null,
+
     @Column(name = "file_id")
     val fileId: String? = null,
 
     @Column(name = "index")
-    val index: Int? = null
+    val index: Int? = 0
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -41,4 +45,10 @@ class Media(
         result = 31 * result + (index ?: 0)
         return result
     }
+
+    override fun toString(): String {
+        return "Media(id=$id, type='$type', fileId=$fileId, index=$index)"
+    }
+
+
 }

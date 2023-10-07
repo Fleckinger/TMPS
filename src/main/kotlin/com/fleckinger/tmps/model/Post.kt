@@ -9,17 +9,21 @@ import java.util.UUID
 class Post(
     @Id
     @GeneratedValue
-    var id: UUID? = null,
+    @Column(name = "id")
+    var id: UUID? = UUID.randomUUID(),
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "user_id", foreignKey = ForeignKey(name = "fk_post_user"))
+    @JoinColumn(name = "user_id", foreignKey = ForeignKey(name = "fk_user_post"))
     var user: User? = null,
+
+    @Column(name = "media_group_id")
+    var mediaGroupId: String? = null,
 
     @Column(name = "text")
     var text: String? = null,
 
-    @OneToMany(fetch = FetchType.LAZY, cascade = [CascadeType.ALL], orphanRemoval = true)
-    var media: List<Media>? = emptyList(),
+    @OneToMany(mappedBy = "post", fetch = FetchType.EAGER, cascade = [CascadeType.ALL], orphanRemoval = true)
+    var media: MutableList<Media>? = mutableListOf(),
 
     @Column(name = "post_date")
     var postDate: ZonedDateTime? = null,
@@ -39,6 +43,7 @@ class Post(
 
         if (id != other.id) return false
         if (user != other.user) return false
+        if (mediaGroupId != other.mediaGroupId) return false
         if (text != other.text) return false
         if (media != other.media) return false
         if (postDate != other.postDate) return false
@@ -50,13 +55,12 @@ class Post(
     override fun hashCode(): Int {
         var result = id?.hashCode() ?: 0
         result = 31 * result + (user?.hashCode() ?: 0)
+        result = 31 * result + (mediaGroupId?.hashCode() ?: 0)
         result = 31 * result + (text?.hashCode() ?: 0)
         result = 31 * result + (media?.hashCode() ?: 0)
         result = 31 * result + (postDate?.hashCode() ?: 0)
         result = 31 * result + (isPosted?.hashCode() ?: 0)
         return result
     }
-
-
 }
 

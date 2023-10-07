@@ -1,4 +1,4 @@
-CREATE TABLE usr
+CREATE TABLE IF NOT EXISTS usr
 (
     id               UUID NOT NULL UNIQUE,
     telegram_user_id BIGINT UNIQUE,
@@ -8,25 +8,25 @@ CREATE TABLE usr
     PRIMARY KEY (id)
 );
 
-CREATE TABLE post
+CREATE TABLE IF NOT EXISTS post
 (
-    id        UUID NOT NULL UNIQUE,
-    user_id   UUID NOT NULL,
-    text      VARCHAR(4096),
-    post_date TIMESTAMP,
-    is_posted BOOLEAN,
+    id             UUID NOT NULL UNIQUE,
+    user_id        UUID NOT NULL,
+    media_group_id VARCHAR(64),
+    text           VARCHAR(4096),
+    post_date      TIMESTAMP,
+    is_posted      BOOLEAN,
     PRIMARY KEY (id)
 );
 
-CREATE TABLE media
+CREATE TABLE IF NOT EXISTS media
 (
-    id       UUID NOT NULL UNIQUE,
+    id       BIGSERIAL NOT NULL UNIQUE,
     post_id  UUID NOT NULL,
     type     VARCHAR(64),
-    field_id VARCHAR(64),
+    file_id  VARCHAR(128),
     index    SMALLINT,
-    PRIMARY KEY (id),
-    FOREIGN KEY (post_id) REFERENCES post (id)
+    PRIMARY KEY (id)
 );
 
 ALTER TABLE IF EXISTS post

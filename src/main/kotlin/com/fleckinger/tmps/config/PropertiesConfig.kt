@@ -14,4 +14,10 @@ class PropertiesConfig {
         val botName: String
     )
 
+    @ConfigurationProperties(prefix = "application")
+    data class ApplicationProperties(
+        val postingDelay: Long
+    )
+
+
 }

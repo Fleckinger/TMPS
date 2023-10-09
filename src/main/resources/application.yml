@@ -9,7 +9,11 @@ spring:
     password: ${SPRING_DATASOURCE_PASSWORD}
   jpa:
     database-platform: org.hibernate.dialect.PostgreSQL10Dialect
+    show-sql: true
 
 telegram:
   bot-name: ${TELEGRAM_BOT_NAME}
   bot-token: ${TELEGRAM_BOT_TOKEN}
+
+application:
+  posting-delay: ${POSTING_DELAY}

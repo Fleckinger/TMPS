@@ -1,7 +1,7 @@
 package com.fleckinger.tmps.model
 
 import jakarta.persistence.*
-import java.time.ZonedDateTime
+import java.time.LocalDateTime
 import java.util.UUID
 
 @Entity
@@ -26,7 +26,7 @@ class Post(
     var media: MutableList<Media>? = mutableListOf(),
 
     @Column(name = "post_date")
-    var postDate: ZonedDateTime? = null,
+    var postDate: LocalDateTime? = null,
 
     @Column(name = "is_posted")
     var isPosted: Boolean? = false
@@ -61,6 +61,28 @@ class Post(
         result = 31 * result + (postDate?.hashCode() ?: 0)
         result = 31 * result + (isPosted?.hashCode() ?: 0)
         return result
+    }
+
+
+
+    fun hasMediaGroupId(): Boolean {
+        return !mediaGroupId.isNullOrEmpty()
+    }
+
+    fun hasText(): Boolean {
+        return !text.isNullOrEmpty()
+    }
+
+    fun hasMedia(): Boolean {
+        return !media.isNullOrEmpty()
+    }
+
+    fun hasPostDate(): Boolean {
+        return postDate != null
+    }
+
+    override fun toString(): String {
+        return "Post(id=$id, user=$user, mediaGroupId=$mediaGroupId, text=$text, media=$media, postDate=$postDate, isPosted=$isPosted)"
     }
 }
 

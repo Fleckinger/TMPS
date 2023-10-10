@@ -3,6 +3,7 @@ package com.fleckinger.tmps.service
 import com.fleckinger.tmps.config.PropertiesConfig
 import com.fleckinger.tmps.dto.MediaTypes
 import com.fleckinger.tmps.exception.BotNotAddedToChannelException
+import com.fleckinger.tmps.exception.IllegalPostDateException
 import com.fleckinger.tmps.exception.RegistrationNotCompletedException
 import com.fleckinger.tmps.model.Media
 import com.fleckinger.tmps.model.Post
@@ -150,7 +151,10 @@ class TelegramBotService(
             log.error("User ${user.username} registration is not completed. Error message: ${e.message}")
             sendText(message.chatId, e.message!!)
         } catch (e: BotNotAddedToChannelException) {
-            log.error("Bot not added to channel ${user.channelId} as an administrator. Error message: ${e.message}")
+            log.error("User ${user.username} not added the bot to the channel ${user.channelId} as an administrator. Error message: ${e.message}")
+            sendText(message.chatId, e.message!!)
+        } catch (e: IllegalPostDateException) {
+            log.error("User ${user.username} send post to channel ${user.channelId} with past date. Error message: ${e.message}")
             sendText(message.chatId, e.message!!)
         }
     }
@@ -163,6 +167,7 @@ class TelegramBotService(
             //process single attachment/first message in group
             val media = if (hasMedia(message)) mutableListOf(getMedia(message)) else mutableListOf()
             val timestamp = user.timeZone?.let { getTimestampWithAppTimezone(text, it) }
+            if (timestamp!!.isBefore(LocalDateTime.now())) throw IllegalPostDateException("The date cannot be past.")
             post = Post(
                 user = user,
                 text = removeTimestamp(text),

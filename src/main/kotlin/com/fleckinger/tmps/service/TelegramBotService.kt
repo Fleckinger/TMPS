@@ -2,6 +2,7 @@ package com.fleckinger.tmps.service
 
 import com.fleckinger.tmps.config.PropertiesConfig
 import com.fleckinger.tmps.dto.MediaTypes
+import com.fleckinger.tmps.exception.BotNotAddedToChannelException
 import com.fleckinger.tmps.exception.RegistrationNotCompletedException
 import com.fleckinger.tmps.model.Media
 import com.fleckinger.tmps.model.Post
@@ -12,6 +13,7 @@ import org.slf4j.LoggerFactory
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Service
 import org.telegram.telegrambots.bots.TelegramLongPollingBot
+import org.telegram.telegrambots.meta.api.methods.groupadministration.GetChatAdministrators
 import org.telegram.telegrambots.meta.api.methods.send.SendAnimation
 import org.telegram.telegrambots.meta.api.methods.send.SendAudio
 import org.telegram.telegrambots.meta.api.methods.send.SendDocument
@@ -147,10 +149,14 @@ class TelegramBotService(
         } catch (e: RegistrationNotCompletedException) {
             log.error("User ${user.username} registration is not completed. Error message: ${e.message}")
             sendText(message.chatId, e.message!!)
+        } catch (e: BotNotAddedToChannelException) {
+            log.error("Bot not added to channel ${user.channelId} as an administrator. Error message: ${e.message}")
+            sendText(message.chatId, e.message!!)
         }
     }
 
     fun createPost(user: User, message: Message) {
+        if (!isBotAddedToUserChannel(user.channelId!!)) throw BotNotAddedToChannelException("Bot not added to the channel as an administrator.")
         val text = getText(message)
         val post: Post
         if (message.mediaGroupId == null || isFirstMessageInGroup(message)) {
@@ -372,5 +378,14 @@ class TelegramBotService(
         responseMessage.document = InputFile().setMedia(documentId)
         responseMessage.caption = text
         execute(responseMessage)
+    }
+
+    private fun isBotAddedToUserChannel(channelId: Long): Boolean {
+        return try {
+            val administrators = execute(GetChatAdministrators.builder().chatId(channelId).build())
+            administrators.stream().anyMatch { member -> member.user.id == telegramProperties.botId }
+        } catch (e: Exception) {
+            false
+        }
     }
 }

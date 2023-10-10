@@ -11,7 +11,8 @@ class PropertiesConfig {
     @ConfigurationProperties(prefix = "telegram")
     data class TelegramProperties(
         val botToken: String,
-        val botName: String
+        val botName: String,
+        val botId: Long
     )
 
     @ConfigurationProperties(prefix = "application")

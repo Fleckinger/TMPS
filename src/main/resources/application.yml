@@ -13,6 +13,7 @@ spring:
 
 telegram:
   bot-name: ${TELEGRAM_BOT_NAME}
+  bot-id: ${TELEGRAM_BOT_ID}
   bot-token: ${TELEGRAM_BOT_TOKEN}
 
 application:

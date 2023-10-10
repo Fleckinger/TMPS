@@ -33,7 +33,7 @@ class PostService(private val postRepository: PostRepository) {
     fun hasOnlyText(post: Post): Boolean {
         return post.hasText() && (!post.hasMediaGroupId() && !post.hasMedia())
     }
-    fun hasOneMedia(post: Post): Boolean {
+    fun hasSingleMedia(post: Post): Boolean {
         return post.hasMedia() && !post.hasMediaGroupId()
     }
 

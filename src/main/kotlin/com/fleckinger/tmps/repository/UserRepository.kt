@@ -8,4 +8,6 @@ import java.util.*
 @Repository
 interface UserRepository: JpaRepository<User, UUID> {
     fun findUserByTelegramUserId(telegramUserId: Long) : Optional<User>
+
+    fun existsByTelegramUserId(telegramUserId: Long) : Boolean
 }

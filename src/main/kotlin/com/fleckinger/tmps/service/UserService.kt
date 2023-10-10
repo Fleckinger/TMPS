@@ -23,10 +23,10 @@ class UserService(private val userRepository: UserRepository) {
     }
 
     fun exists(telegramUserId: Long): Boolean {
-        return userRepository.findUserByTelegramUserId(telegramUserId).isPresent
+        return userRepository.existsByTelegramUserId(telegramUserId)
     }
 
-    fun newUser(telegramUserId: Long, username: String): User {
+    fun createNewUser(telegramUserId: Long, username: String): User {
         val user = User(telegramUserId = telegramUserId, username = username)
         return saveUser(user)
     }

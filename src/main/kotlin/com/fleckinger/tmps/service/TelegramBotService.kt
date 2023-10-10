@@ -73,7 +73,7 @@ class TelegramBotService(
 
             if (postService.hasOnlyText(it)) {
                 sendText(chatId, it.text!!)
-            } else if (postService.hasOneMedia(it)) {
+            } else if (postService.hasSingleMedia(it)) {
                 sendMedia(chatId, it.media!![0].fileId!!, MediaTypes.valueOf(it.media!![0].type), it.text)
             } else if (postService.hasMediaGroup(it)) {
                 sendMediaGroup(chatId, it.media!!, it.text)
@@ -179,7 +179,7 @@ class TelegramBotService(
         return if (userService.exists(telegramUserId)) {
             userService.getUserByTelegramUserId(telegramUserId)
         } else {
-            userService.newUser(telegramUserId, username)
+            userService.createNewUser(telegramUserId, username)
         }
     }
 

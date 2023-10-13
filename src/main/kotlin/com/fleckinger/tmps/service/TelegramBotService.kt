@@ -92,6 +92,11 @@ class TelegramBotService(
         execute(responseMessage)
     }
 
+    fun replyToMessageWithText(chatId: Long, replyToMessageId: Int, text: String) {
+        val responseMessage = SendMessage.builder().chatId(chatId).replyToMessageId(replyToMessageId).text(text).build()
+        execute(responseMessage)
+    }
+
     fun sendSingleMediaMessage(chatId: Long, mediaId: String, mediaType: MediaTypes, text: String?) {
         when (mediaType) {
             MediaTypes.IMAGE -> sendPhotoMessage(chatId, mediaId, text ?: "")
@@ -171,11 +176,9 @@ class TelegramBotService(
             post.text = removeTimestamp(text)
             post.postDate = timestamp
             postService.save(post)
-            //TODO should be replied to original message
-            sendTextMessage(message.chatId, "Post edited.")
+            replyToMessageWithText(message.chatId, message.messageId, "Post edited.")
         } else {
-            //TODO should be replied to original message
-            sendTextMessage(message.chatId, "Post not found.")
+            replyToMessageWithText(message.chatId, message.messageId, "Post is not found in scheduled.")
         }
     }
 
@@ -196,8 +199,7 @@ class TelegramBotService(
                 mediaGroupId = message.mediaGroupId,
                 postDate = timestamp
             )
-            //TODO should be replied to original message
-            sendTextMessage(message.chatId, "Post successfully scheduled.")
+            replyToMessageWithText(message.chatId, message.messageId, "Post successfully scheduled.")
         } else {
             //process multiple attachments
             post = postService.getPostByMediaGroupId(message.mediaGroupId).get()
@@ -346,9 +348,8 @@ class TelegramBotService(
 
             post.ifPresentOrElse({
                 postService.delete(post.get())
-                //TODO should be replied to original message
-                sendTextMessage(chatId, "Post deleted.")
-            }, { sendTextMessage(chatId, "Post not found.") })
+                replyToMessageWithText(chatId, messageId, "Post deleted.")
+            }, { replyToMessageWithText(chatId, messageId, "Post is not found in scheduled.") })
 
         } else {
             sendTextMessage(chatId, "To delete a post, reply to the original message.")

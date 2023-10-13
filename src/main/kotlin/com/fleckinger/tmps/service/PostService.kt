@@ -34,6 +34,10 @@ class PostService(private val postRepository: PostRepository) {
         return postRepository.findByTelegramMessageIdAndUser_telegramUserId(telegramMessageId, telegramUserId)
     }
 
+    fun countRemainingPost(telegramUserId: Long): Long {
+        return postRepository.countAllByIsPostedAndUser_TelegramUserId(false, telegramUserId)
+    }
+
     fun postExistsByMediaGroupId(mediaGroupId: String): Boolean {
         return postRepository.existsByMediaGroupId(mediaGroupId)
     }

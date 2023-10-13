@@ -280,6 +280,8 @@ class TelegramBotService(
 
             "/edit_date" -> editDateCommand(chatId, telegramUserId, repliedMessageId, message.text)
 
+            "/remaining_posts" -> remainingPostCommand(chatId, telegramUserId)
+
             "/help" -> helpCommand(chatId)
 
             else -> sendTextMessage(chatId, "'${words[0]}' is unknown command. Use /help to get commands")
@@ -393,6 +395,11 @@ class TelegramBotService(
         } else {
             sendTextMessage(chatId, "To edit a post date, reply to the original message.")
         }
+    }
+
+    private fun remainingPostCommand(chatId: Long, telegramUserId: Long) {
+        val remainingCount = postService.countRemainingPost(telegramUserId)
+        sendTextMessage(chatId, "$remainingCount posts left.")
     }
 
     private fun helpCommand(chatId: Long) {

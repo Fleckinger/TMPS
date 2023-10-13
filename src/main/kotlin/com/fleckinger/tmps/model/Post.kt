@@ -16,6 +16,9 @@ class Post(
     @JoinColumn(name = "user_id", foreignKey = ForeignKey(name = "fk_user_post"))
     var user: User? = null,
 
+    @Column(name = "telegram_message_id")
+    var telegramMessageId: Int? = null,
+
     @Column(name = "media_group_id")
     var mediaGroupId: String? = null,
 
@@ -43,6 +46,7 @@ class Post(
 
         if (id != other.id) return false
         if (user != other.user) return false
+        if (telegramMessageId != other.telegramMessageId) return false
         if (mediaGroupId != other.mediaGroupId) return false
         if (text != other.text) return false
         if (media != other.media) return false
@@ -55,6 +59,7 @@ class Post(
     override fun hashCode(): Int {
         var result = id?.hashCode() ?: 0
         result = 31 * result + (user?.hashCode() ?: 0)
+        result = 31 * result + (telegramMessageId?.hashCode() ?: 0)
         result = 31 * result + (mediaGroupId?.hashCode() ?: 0)
         result = 31 * result + (text?.hashCode() ?: 0)
         result = 31 * result + (media?.hashCode() ?: 0)
@@ -62,7 +67,6 @@ class Post(
         result = 31 * result + (isPosted?.hashCode() ?: 0)
         return result
     }
-
 
 
     fun hasMediaGroupId(): Boolean {
@@ -82,7 +86,7 @@ class Post(
     }
 
     override fun toString(): String {
-        return "Post(id=$id, user=$user, mediaGroupId=$mediaGroupId, text=$text, media=$media, postDate=$postDate, isPosted=$isPosted)"
+        return "Post(id=$id, user=$user, mediaGroupId=$mediaGroupId, telegramMessageId=$telegramMessageId, text=$text, media=$media, postDate=$postDate, isPosted=$isPosted)"
     }
 }
 

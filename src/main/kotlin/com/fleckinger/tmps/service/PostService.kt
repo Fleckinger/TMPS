@@ -18,8 +18,20 @@ class PostService(private val postRepository: PostRepository) {
         return postRepository.save(post)
     }
 
+    fun delete(post: Post) {
+        postRepository.delete(post)
+    }
+
     fun getPostByMediaGroupId(mediaGroupId: String): Optional<Post> {
         return postRepository.findByMediaGroupId(mediaGroupId)
+    }
+
+    fun getPostByTelegramMessageId(telegramMessageId: Int): Optional<Post> {
+        return postRepository.findByTelegramMessageId(telegramMessageId)
+    }
+
+    fun getPostByTelegramMessageIdAndTelegramUserId(telegramUserId: Long, telegramMessageId: Int): Optional<Post> {
+        return postRepository.findByTelegramMessageIdAndUser_telegramUserId(telegramMessageId, telegramUserId)
     }
 
     fun postExistsByMediaGroupId(mediaGroupId: String): Boolean {

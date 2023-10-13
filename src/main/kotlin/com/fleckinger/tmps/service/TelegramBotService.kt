@@ -60,7 +60,7 @@ class TelegramBotService(
             processTelegramUpdateEvent(update!!)
         } catch (e: Exception) {
             log.error(e.stackTraceToString())
-            if (update!!.hasMessage()) sendText(update.message.from.id, "Unknown error")
+            if (update!!.hasMessage()) sendTextMessage(update.message.from.id, "Unknown error")
         }
     }
 
@@ -75,35 +75,35 @@ class TelegramBotService(
             val chatId = it.user!!.channelId!!
 
             if (postService.hasOnlyText(it)) {
-                sendText(chatId, it.text!!)
+                sendTextMessage(chatId, it.text!!)
             } else if (postService.hasSingleMedia(it)) {
-                sendMedia(chatId, it.media!![0].fileId!!, MediaTypes.valueOf(it.media!![0].type), it.text)
+                sendSingleMediaMessage(chatId, it.media!![0].fileId!!, MediaTypes.valueOf(it.media!![0].type), it.text)
             } else if (postService.hasMediaGroup(it)) {
-                sendMediaGroup(chatId, it.media!!, it.text)
+                sendMediaGroupMessage(chatId, it.media!!, it.text)
             }
             it.isPosted = true
             postService.save(it)
         }
     }
 
-    fun sendText(chatId: Long, text: String) {
+    fun sendTextMessage(chatId: Long, text: String) {
         val responseMessage = SendMessage(chatId.toString(), text)
         responseMessage.enableMarkdown(true)
         execute(responseMessage)
     }
 
-    fun sendMedia(chatId: Long, mediaId: String, mediaType: MediaTypes, text: String?) {
+    fun sendSingleMediaMessage(chatId: Long, mediaId: String, mediaType: MediaTypes, text: String?) {
         when (mediaType) {
-            MediaTypes.IMAGE -> sendPhoto(chatId, mediaId, text ?: "")
-            MediaTypes.VIDEO -> sendVideo(chatId, mediaId, text ?: "")
-            MediaTypes.AUDIO -> sendAudio(chatId, mediaId, text ?: "")
-            MediaTypes.DOCUMENT -> sendDocument(chatId, mediaId, text ?: "")
-            MediaTypes.ANIMATION -> sendAnimation(chatId, mediaId, text ?: "")
+            MediaTypes.IMAGE -> sendPhotoMessage(chatId, mediaId, text ?: "")
+            MediaTypes.VIDEO -> sendVideoMessage(chatId, mediaId, text ?: "")
+            MediaTypes.AUDIO -> sendAudioMessage(chatId, mediaId, text ?: "")
+            MediaTypes.DOCUMENT -> sendDocumentMessage(chatId, mediaId, text ?: "")
+            MediaTypes.ANIMATION -> sendAnimationMessage(chatId, mediaId, text ?: "")
             MediaTypes.NONE -> "doNothing"
         }
     }
 
-    fun sendMediaGroup(chatId: Long, medias: MutableList<Media>, text: String?) {
+    fun sendMediaGroupMessage(chatId: Long, medias: MutableList<Media>, text: String?) {
         if (medias.size < 2 || medias.size > 10) throw IllegalArgumentException("Media list must include 2-10 items.")
 
         val telegramMedias = medias.stream().map {
@@ -127,35 +127,55 @@ class TelegramBotService(
     }
 
     fun processTelegramUpdateEvent(update: Update) {
-        val message = update.message
+        val message = update.message ?: update.editedMessage
         when {
-            isCommandMessage(update) -> processCommand(
-                message.chatId,
-                message.text,
-                message.from.id,
-                message.from.userName
-            )
-            else -> processMessage(message)
+            isCommandMessage(update) -> processCommand(message)
+            else -> processMessage(message, update.hasEditedMessage())
         }
     }
 
-    fun processMessage(message: Message) {
+    fun processMessage(message: Message, isUpdate: Boolean) {
         val user = userService.getUserByTelegramUserId(message.from.id)
 
         try {
             userService.checkUserRegistration(user)
-            createPost(user, message)
+            if (isUpdate) {
+                updatePost(user, message)
+            } else {
+                createPost(user, message)
+            }
+
         } catch (e: DateTimeException) {
-            sendText(message.chatId, "Wrong date format")
+            sendTextMessage(message.chatId, "Wrong date format")
         } catch (e: RegistrationNotCompletedException) {
             log.error("User ${user.username} registration is not completed. Error message: ${e.message}")
-            sendText(message.chatId, e.message!!)
+            sendTextMessage(message.chatId, e.message!!)
         } catch (e: BotNotAddedToChannelException) {
             log.error("User ${user.username} not added the bot to the channel ${user.channelId} as an administrator. Error message: ${e.message}")
-            sendText(message.chatId, e.message!!)
+            sendTextMessage(message.chatId, e.message!!)
         } catch (e: IllegalPostDateException) {
             log.error("User ${user.username} send post to channel ${user.channelId} with past date. Error message: ${e.message}")
-            sendText(message.chatId, e.message!!)
+            sendTextMessage(message.chatId, e.message!!)
+        }
+    }
+
+    fun updatePost(user: User, message: Message) {
+        if (!isBotAddedToUserChannel(user.channelId!!)) throw BotNotAddedToChannelException("Bot not added to the channel as an administrator.")
+        val text = getText(message)
+        val postOptional = postService.getPostByTelegramMessageId(message.messageId)
+            .filter { post -> post.user?.telegramUserId == user.telegramUserId }
+        if (postOptional.isPresent) {
+            val timestamp = user.timeZone?.let { getTimestampWithAppTimezone(text, it) }
+            if (timestamp!!.isBefore(LocalDateTime.now())) throw IllegalPostDateException("The date cannot be past.")
+            val post = postOptional.get()
+            post.text = removeTimestamp(text)
+            post.postDate = timestamp
+            postService.save(post)
+            //TODO should be replied to original message
+            sendTextMessage(message.chatId, "Post edited.")
+        } else {
+            //TODO should be replied to original message
+            sendTextMessage(message.chatId, "Post not found.")
         }
     }
 
@@ -172,10 +192,12 @@ class TelegramBotService(
                 user = user,
                 text = removeTimestamp(text),
                 media = media,
+                telegramMessageId = message.messageId,
                 mediaGroupId = message.mediaGroupId,
                 postDate = timestamp
             )
-            sendText(message.chatId, "Post successfully scheduled.")
+            //TODO should be replied to original message
+            sendTextMessage(message.chatId, "Post successfully scheduled.")
         } else {
             //process multiple attachments
             post = postService.getPostByMediaGroupId(message.mediaGroupId).get()
@@ -236,9 +258,13 @@ class TelegramBotService(
         }
     }
 
-    private fun processCommand(chatId: Long, command: String, telegramUserId: Long, username: String) {
-        log.info("Class: $className. Method: processCommand(chatId: Long, command: String, telegramUserId: Long). Arguments:  chatId=$chatId, command=$command, telegramUserId=$telegramUserId")
-        val words = command.split("\\s+".toRegex())
+    private fun processCommand(message: Message) {
+        log.info("Class: $className. Method: processCommand(chatId: Long, command: String, telegramUserId: Long). Arguments:  chatId=${message.chatId}, command=${message.text}, telegramUserId=${message.from.id}")
+        val words = message.text.split("\\s+".toRegex())
+        val telegramUserId = message.from.id
+        val chatId = message.chatId
+        val username = message.from.userName
+        val repliedMessageId = message.replyToMessage?.let { it.messageId }
         when (words[0]) {
             "/start" -> startCommand(chatId, username, telegramUserId)
 
@@ -246,70 +272,130 @@ class TelegramBotService(
 
             "/set_timezone" -> setTimezoneCommand(chatId, words, telegramUserId)
 
+            "/delete" -> deleteCommand(chatId, telegramUserId, repliedMessageId)
+
+            "/edit_text" -> editTextCommand(chatId, telegramUserId, repliedMessageId, message.text)
+
+            "/edit_date" -> editDateCommand(chatId, telegramUserId, repliedMessageId, message.text)
+
             "/help" -> helpCommand(chatId)
 
-            else -> sendText(chatId, "'${words[0]}' is unknown command. Use /help to get commands")
+            else -> sendTextMessage(chatId, "'${words[0]}' is unknown command. Use /help to get commands")
         }
     }
 
     private fun startCommand(chatId: Long, username: String, telegramUserId: Long) {
         registerUser(telegramUserId, username)
-        sendText(chatId, startMessage)
+        sendTextMessage(chatId, startMessage)
     }
 
     private fun setChannelIdCommand(chatId: Long, words: List<String>, telegramUserId: Long) {
         try {
             when (words.size) {
-                0 -> sendText(chatId, "Command shouldn't be empty")
+                0 -> sendTextMessage(chatId, "Command shouldn't be empty")
 
-                1 -> sendText(chatId, "Enter channel id.")
+                1 -> sendTextMessage(chatId, "Enter channel id.")
 
                 2 -> {
                     userService.setChannelId(words[1].toLong(), telegramUserId)
-                    sendText(chatId, "Channel id set.")
+                    sendTextMessage(chatId, "Channel id set.")
                 }
             }
         } catch (nfe: java.lang.NumberFormatException) {
             log.error("Incorrect channel id ${words[1]} ")
-            sendText(
+            sendTextMessage(
                 chatId,
                 "Channel id '${words[1]}' is incorrect. You can get channel id from this bot @username\\_to\\_id\\_bot"
             )
         } catch (e: Exception) {
             log.error("Message: ${e.message}. \n Stack trace ${e.stackTraceToString()}")
-            sendText(chatId, "Unknown error.")
+            sendTextMessage(chatId, "Unknown error.")
         }
 
     }
 
     private fun setTimezoneCommand(chatId: Long, words: List<String>, telegramUserId: Long) {
         when (words.size) {
-            0 -> sendText(chatId, "Command shouldn't be empty")
+            0 -> sendTextMessage(chatId, "Command shouldn't be empty")
 
-            1 -> sendText(chatId, "Enter timezone offset.")
+            1 -> sendTextMessage(chatId, "Enter timezone offset.")
 
             2 -> {
                 try {
                     val zoneId = Utils.getTimezoneId(words[1].toInt())
                     userService.setTimezone(telegramUserId, zoneId)
-                    sendText(chatId, "Timezone set.")
+                    sendTextMessage(chatId, "Timezone set.")
                 } catch (nfe: java.lang.NumberFormatException) {
                     log.error("Incorrect timezone ${words[1]} ")
-                    sendText(chatId, "Timezone '${words[1]}' is incorrect. Enter timezone like '+0' for UTC+0")
+                    sendTextMessage(chatId, "Timezone '${words[1]}' is incorrect. Enter timezone like '+0' for UTC+0")
                 } catch (dte: DateTimeException) {
                     log.error("Incorrect timezone ${words[1]} ")
-                    sendText(chatId, "${dte.message} Enter timezone like '+0' for UTC+0")
+                    sendTextMessage(chatId, "${dte.message} Enter timezone like '+0' for UTC+0")
                 } catch (e: Exception) {
                     log.error("Message: ${e.message}. \n Stack trace ${e.stackTraceToString()}")
-                    sendText(chatId, "Unknown error.")
+                    sendTextMessage(chatId, "Unknown error.")
                 }
             }
         }
+    }
 
+    private fun deleteCommand(chatId: Long, telegramUserId: Long, messageId: Int?) {
+        if (messageId != null) {
+            val post = postService.getPostByTelegramMessageId(messageId)
+                .filter { post -> post.user?.telegramUserId == telegramUserId }
+
+            post.ifPresentOrElse({
+                postService.delete(post.get())
+                //TODO should be replied to original message
+                sendTextMessage(chatId, "Post deleted.")
+            }, { sendTextMessage(chatId, "Post not found.") })
+
+        } else {
+            sendTextMessage(chatId, "To delete a post, reply to the original message.")
+        }
+    }
+
+    private fun editTextCommand(chatId: Long, telegramUserId: Long, messageId: Int?, text: String) {
+        val newText = text.replace("/edit_text ", "")
+        if (messageId != null) {
+            val post = postService.getPostByTelegramMessageId(messageId)
+                .filter { post -> post.user?.telegramUserId == telegramUserId }
+
+            post.ifPresentOrElse({
+                it.text = newText
+                postService.save(it)
+                //TODO should be replied to original message
+                sendTextMessage(chatId, "Post edited.")
+            }, { sendTextMessage(chatId, "Post not found.") })
+
+        } else {
+            sendTextMessage(chatId, "To edit a post, reply to the original message.")
+        }
+    }
+
+    private fun editDateCommand(chatId: Long, telegramUserId: Long, messageId: Int?, postDate: String) {
+        val user = userService.getUserByTelegramUserId(telegramUserId)
+        val timestamp = user.timeZone?.let { getTimestampWithAppTimezone(postDate, it) }
+        if (timestamp!!.isBefore(LocalDateTime.now())) throw IllegalPostDateException("The date cannot be past.")
+
+        if (messageId != null) {
+            val post = postService.getPostByTelegramMessageId(messageId)
+                .filter { post -> post.user?.telegramUserId == telegramUserId }
+
+            post.ifPresentOrElse({
+                it.postDate = LocalDateTime.now() //EDIT
+                postService.save(it)
+                //TODO should be replied to original message
+                sendTextMessage(chatId, "Post date edited.")
+            }, { sendTextMessage(chatId, "Post not found.") })
+
+        } else {
+            sendTextMessage(chatId, "To edit a post date, reply to the original message.")
+        }
     }
 
     private fun helpCommand(chatId: Long) {
-        sendText(chatId, helpMessage)
+        sendTextMessage(chatId, helpMessage)
     }
 
     private fun isCommandMessage(update: Update): Boolean {
@@ -345,7 +431,7 @@ class TelegramBotService(
         return text.replace(dateTimePattern, "")
     }
 
-    private fun sendPhoto(chatId: Long, photoId: String, text: String) {
+    private fun sendPhotoMessage(chatId: Long, photoId: String, text: String) {
         val responseMessage = SendPhoto()
         responseMessage.setChatId(chatId)
         responseMessage.photo = InputFile().setMedia(photoId)
@@ -353,7 +439,7 @@ class TelegramBotService(
         execute(responseMessage)
     }
 
-    private fun sendVideo(chatId: Long, videoId: String, text: String) {
+    private fun sendVideoMessage(chatId: Long, videoId: String, text: String) {
         val responseMessage = SendVideo()
         responseMessage.setChatId(chatId)
         responseMessage.video = InputFile().setMedia(videoId)
@@ -361,7 +447,7 @@ class TelegramBotService(
         execute(responseMessage)
     }
 
-    private fun sendAudio(chatId: Long, audioId: String, text: String) {
+    private fun sendAudioMessage(chatId: Long, audioId: String, text: String) {
         val responseMessage = SendAudio()
         responseMessage.setChatId(chatId)
         responseMessage.audio = InputFile().setMedia(audioId)
@@ -369,7 +455,7 @@ class TelegramBotService(
         execute(responseMessage)
     }
 
-    private fun sendAnimation(chatId: Long, animationId: String, text: String) {
+    private fun sendAnimationMessage(chatId: Long, animationId: String, text: String) {
         val responseMessage = SendAnimation()
         responseMessage.setChatId(chatId)
         responseMessage.animation = InputFile().setMedia(animationId)
@@ -377,7 +463,7 @@ class TelegramBotService(
         execute(responseMessage)
     }
 
-    private fun sendDocument(chatId: Long, documentId: String, text: String) {
+    private fun sendDocumentMessage(chatId: Long, documentId: String, text: String) {
         val responseMessage = SendDocument()
         responseMessage.setChatId(chatId)
         responseMessage.document = InputFile().setMedia(documentId)

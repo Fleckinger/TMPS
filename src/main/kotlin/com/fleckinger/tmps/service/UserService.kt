@@ -35,9 +35,9 @@ class UserService(private val userRepository: UserRepository) {
         return userRepository.save(user)
     }
 
-    fun setChannelId(chatId: Long, telegramUserId: Long): Long {
+    fun setChannelId(channelId: Long, telegramUserId: Long): Long {
         var user = getUserByTelegramUserId(telegramUserId)
-        user.channelId = chatId
+        user.channelId = channelId
         user = saveUser(user)
         return user.channelId!!
     }

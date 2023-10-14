@@ -12,8 +12,6 @@ interface PostRepository: JpaRepository<Post, UUID> {
 
     fun findByTelegramMessageId(telegramMessageId: Int): Optional<Post>
 
-    fun findByTelegramMessageIdAndUser_telegramUserId(telegramMessageId: Int, telegramUserId: Long): Optional<Post>
-
     fun existsByMediaGroupId(mediaGroupId: String): Boolean
 
     fun findAllByPostDateBetweenAndIsPosted(startDate: LocalDateTime, endDate: LocalDateTime, isPosted: Boolean): List<Post>

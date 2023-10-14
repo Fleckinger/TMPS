@@ -30,10 +30,6 @@ class PostService(private val postRepository: PostRepository) {
         return postRepository.findByTelegramMessageId(telegramMessageId)
     }
 
-    fun getPostByTelegramMessageIdAndTelegramUserId(telegramUserId: Long, telegramMessageId: Int): Optional<Post> {
-        return postRepository.findByTelegramMessageIdAndUser_telegramUserId(telegramMessageId, telegramUserId)
-    }
-
     fun countRemainingPost(telegramUserId: Long): Long {
         return postRepository.countAllByIsPostedAndUser_TelegramUserId(false, telegramUserId)
     }
@@ -54,8 +50,6 @@ class PostService(private val postRepository: PostRepository) {
     }
 
     fun hasMediaGroup(post: Post): Boolean {
-        return post.hasMedia()
+        return post.hasMediaGroupId()
     }
-
-
 }

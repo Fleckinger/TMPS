@@ -38,8 +38,9 @@ class PostService(private val postRepository: PostRepository) {
         return postRepository.existsByMediaGroupId(mediaGroupId)
     }
 
-    fun getPostsBetweenDates(startDate: LocalDateTime, endDate: LocalDateTime, isPosted: Boolean): List<Post> {
-        return postRepository.findAllByPostDateBetweenAndIsPosted(startDate, endDate, isPosted)
+    fun getPostsBetweenDates(fromDate: LocalDateTime, toDate: LocalDateTime, isPosted: Boolean): List<Post> {
+        log.info("Getting posts between [FROM_DATE: $fromDate] and [TO_DATE: $toDate], [IS_POSTED: $isPosted]")
+        return postRepository.findAllByPostDateBetweenAndIsPosted(fromDate, toDate, isPosted)
     }
 
     fun hasOnlyText(post: Post): Boolean {

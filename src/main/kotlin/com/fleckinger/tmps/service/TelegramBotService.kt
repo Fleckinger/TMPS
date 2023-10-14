@@ -44,7 +44,6 @@ class TelegramBotService(
     private val postService: PostService,
 ) : TelegramLongPollingBot(telegramProperties.botToken) {
 
-    private val className = this.javaClass.name
     private val dateTimePattern = "(\\d{2})-(\\d{2})-(\\d{4})\\s(\\d{2}):(\\d{2})".toRegex()
 
     private val log: Logger = LoggerFactory.getLogger(TelegramBotService::class.java)
@@ -85,6 +84,7 @@ class TelegramBotService(
     }
 
     fun sendTextMessage(chatId: Long, text: String) {
+        log.info("Sending text message [TEXT=$text] to channel [CHAT_ID=$chatId]")
         val responseMessage = SendMessage(chatId.toString(), text)
         execute(responseMessage)
     }
@@ -95,6 +95,7 @@ class TelegramBotService(
     }
 
     fun sendSingleMediaMessage(chatId: Long, mediaId: String, mediaType: MediaTypes, text: String?) {
+        log.info("Sending single media message [TEXT=$text], with [MEDIA_TYPE=$mediaType], [MEDIA_ID=$mediaId] to channel [CHAT_ID=$chatId]")
         when (mediaType) {
             MediaTypes.IMAGE -> sendPhotoMessage(chatId, mediaId, text ?: "")
             MediaTypes.VIDEO -> sendVideoMessage(chatId, mediaId, text ?: "")
@@ -107,7 +108,7 @@ class TelegramBotService(
 
     fun sendMediaGroupMessage(chatId: Long, medias: MutableList<Media>, text: String?) {
         if (medias.size < 2 || medias.size > 10) throw IllegalArgumentException("Media list must include 2-10 items.")
-
+        log.info("Sending media group message [TEXT=$text] to channel [CHAT_ID=$chatId]")
         val telegramMedias = medias.stream().map {
             when (MediaTypes.valueOf(it.type)) {
                 MediaTypes.IMAGE -> InputMediaPhoto.builder().media(it.fileId!!).build()
@@ -148,6 +149,7 @@ class TelegramBotService(
             }
 
         } catch (e: DateTimeException) {
+            log.error("User ${user.username} send post to channel ${user.channelId} with incorrect date. Error message: ${e.message}")
             sendTextMessage(message.chatId, "Wrong date format")
         } catch (e: RegistrationNotCompletedException) {
             log.error("User ${user.username} registration is not completed. Error message: ${e.message}")
@@ -162,6 +164,7 @@ class TelegramBotService(
     }
 
     fun updatePost(user: User, message: Message) {
+        log.info("Updating post [TEXT=${message.text}], [USER=${user.username}], [CHANNEL_ID=${user.channelId}]")
         if (!isBotAddedToUserChannel(user.channelId!!)) throw BotNotAddedToChannelException("Bot not added to the channel as an administrator.")
         val text = getText(message)
         val postOptional = postService.getPostByTelegramMessageId(message.messageId)
@@ -180,6 +183,7 @@ class TelegramBotService(
     }
 
     fun createPost(user: User, message: Message) {
+        log.info("Creating post [TEXT=${message.text}], [USER=${user.username}], [CHANNEL_ID=${user.channelId}]")
         if (!isBotAddedToUserChannel(user.channelId!!)) throw BotNotAddedToChannelException("Bot not added to the channel as an administrator.")
         val text = getText(message)
         val post: Post
@@ -208,6 +212,7 @@ class TelegramBotService(
     }
 
     fun registerUser(telegramUserId: Long, username: String): User {
+        log.info("Register new user. [USERNAME=$username], [TELEGRAM_USER_ID=$telegramUserId]")
         return if (userService.exists(telegramUserId)) {
             userService.getUserByTelegramUserId(telegramUserId)
         } else {
@@ -258,7 +263,7 @@ class TelegramBotService(
     }
 
     private fun processCommand(message: Message) {
-        log.info("Class: $className. Method: processCommand(chatId: Long, command: String, telegramUserId: Long). Arguments:  chatId=${message.chatId}, command=${message.text}, telegramUserId=${message.from.id}")
+        log.info("Processing command from  [CHAT_ID=${message.chatId}], [TEXT=${message.text}], [TELEGRAM_USER_ID=${message.from.id}]")
         val words = message.text.split("\\s+".toRegex())
         val telegramUserId = message.from.id
         val chatId = message.chatId

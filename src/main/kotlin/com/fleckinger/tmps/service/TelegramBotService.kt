@@ -45,8 +45,6 @@ class TelegramBotService(
 ) : TelegramLongPollingBot(telegramProperties.botToken) {
 
     private val className = this.javaClass.name
-    private val startMessage = "Start message"
-    private val helpMessage = "Help message"
     private val dateTimePattern = "(\\d{2})-(\\d{2})-(\\d{4})\\s(\\d{2}):(\\d{2})".toRegex()
 
     private val log: Logger = LoggerFactory.getLogger(TelegramBotService::class.java)
@@ -88,7 +86,6 @@ class TelegramBotService(
 
     fun sendTextMessage(chatId: Long, text: String) {
         val responseMessage = SendMessage(chatId.toString(), text)
-        responseMessage.enableMarkdown(true)
         execute(responseMessage)
     }
 
@@ -289,7 +286,29 @@ class TelegramBotService(
     }
 
     private fun startCommand(chatId: Long, username: String, telegramUserId: Long) {
-        registerUser(telegramUserId, username)
+        if (!userService.exists(telegramUserId)) {
+            registerUser(telegramUserId, username)
+        }
+        val startMessage = """Hello, $username. 
+            |
+            |Welcome to TMPS bot.
+            |
+            |This bot allow you to schedule messages with text and/or media. 
+            |Currently supports images, videos, audio, documents.
+            |
+            |To use the bot follow these steps:
+            |1) Add this bot to your channel, in which you want to post, as an administrator with "manage messages" permission. 
+            |
+            |2) Set the channel id in which you added the bot. You can get the id from this bot @username_to_id_bot 
+            |Use command /set_channelId *your_channel_id* without asterisks.
+            |
+            |3) Set your time zone offset. For example - offset for London is +3. If your area uses daylight saving time(summer time), you will need to update your time zone when seasonal clocks change.
+            |Use command /set_timezone *your_timezone* without asterisks.
+            |
+            |4) Send message with text and/or media and posting time in the following format dd-MM-yyyy HH:mm, for example 14-09-2024 13:02.
+            |
+            |To see all available commands, use /help command.
+        """.trimMargin()
         sendTextMessage(chatId, startMessage)
     }
 
@@ -403,6 +422,32 @@ class TelegramBotService(
     }
 
     private fun helpCommand(chatId: Long) {
+        val helpMessage = """Available commands:
+            |
+            |/start - show start message.
+            |
+            |/set_channelId *channel_id* without asterisks - set/update channel id in which you added the bot. You can get the id from this bot @username_to_id_bot
+            |
+            |/set_timezone *your_timezone* without asterisks - set/update your time zone offset. For example - offset for London is +3. If your area uses daylight saving time(summer time), you will need to update your time zone when seasonal clocks change.
+            |
+            |/delete - delete post from schedule, reply with this command to message which you want to delete. Please note that message will not be deleted from bot message history, and you need to delete it manually.
+            |
+            |/edit_text *new_text* without asterisks - edit post text, reply with this command and new text to message which you want to edit/
+            |
+            |/edit_date *new_post_date* without asterisks - edit post date, reply with this command to message which you want to edit. Date format is dd-MM-yyyy HH:mm, for example 14-09-2024 13:02.
+            |
+            |/remaining_posts - shows number of remaining scheduled posts. 
+            |
+            |/help - show help message.
+            |
+            |How to:
+            
+            |1) Send scheduled post - send message with text and/or media and posting time, in the following format dd-MM-yyyy HH:mm, for example 14-09-2024 13:02.
+            |
+            |2) Edit scheduled post text and/or post date - edit original message, enter new text and/or new post date. Or reply to original message with command /edit_text and enter new text or /edit_date and enter new date.
+            |
+            |3) Delete post from schedule - reply to original post with /delete command. Please note that message will not be deleted from bot message history, and you need to delete it manually.
+        """.trimMargin()
         sendTextMessage(chatId, helpMessage)
     }
 

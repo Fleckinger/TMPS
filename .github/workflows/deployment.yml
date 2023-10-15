@@ -38,7 +38,7 @@ jobs:
         username: ${{ secrets.SERVER_USERNAME }}
         key: ${{ secrets.SERVER_SSH_KEY }}
         port: 22
-        source: "TMPS.jar"
+        source: "TMPS-0.0.1.jar"
         target: "~/source"
 
     - name: Start Service

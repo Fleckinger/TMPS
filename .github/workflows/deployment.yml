@@ -39,4 +39,4 @@ jobs:
         key: ${{ secrets.SERVER_SSH_KEY }}
         port: ${{ secrets.SERVER_PORT }}
         source: "build/libs/TMPS-0.0.1.jar"
-        target: "~/source/build/libs"
+        target: "~/source"

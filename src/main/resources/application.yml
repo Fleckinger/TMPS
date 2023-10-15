@@ -1,5 +1,5 @@
 server:
-  port: ${SERVER_PORT}
+  port: ${APP_SERVER_PORT:8081}
 
 spring:
   datasource:
@@ -17,4 +17,4 @@ telegram:
   bot-token: ${TELEGRAM_BOT_TOKEN}
 
 application:
-  posting-delay: ${POSTING_DELAY}
+  posting-delay: ${POSTING_DELAY:60000}

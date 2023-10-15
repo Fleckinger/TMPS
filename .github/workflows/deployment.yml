@@ -37,9 +37,10 @@ jobs:
         host: ${{ secrets.SERVER_IP_ADDRESS }}
         username: ${{ secrets.SERVER_USERNAME }}
         key: ${{ secrets.SERVER_SSH_KEY }}
-        port: 22
+        port: ${{ secrets.SERVER_PORT }}
         source: "TMPS-0.0.1.jar"
         target: "~/source"
+        debug: true
 
     - name: Start Service
       uses: appleboy/ssh-action@master
@@ -47,12 +48,12 @@ jobs:
         host: ${{ secrets.SERVER_IP_ADDRESS }}
         username: ${{ secrets.SERVER_USERNAME }}
         key: ${{ secrets.SERVER_SSH_KEY }}
-        port: 22
+        port: ${{ secrets.SERVER_PORT }}
         script: |
           sudo /etc/init.d/TMPS stop
-          mv ~/source/TMPS.jar ~/source/TMPS-old.jar
-          mv ~/source/TMPS-latest.jar ~/source/TMPS.jar
+          mv ~/source/TMPS-0.0.1.jar ~/source/TMPS-old.jar
+          mv ~/source/TMPS-latest.jar ~/source/TMPS-0.0.1.jar
           sudo rm -rf /etc/init.d/TMPS
-          sudo ln -s -f ~/source/TMPS.jar /etc/init.d/TMPS
+          sudo ln -s -f ~/source/TMPS-0.0.1.jar /etc/init.d/TMPS
           sudo /etc/init.d/TMPS start
           rm ~/source/TMPS-old.jar

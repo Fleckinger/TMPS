@@ -38,9 +38,8 @@ jobs:
         username: ${{ secrets.SERVER_USERNAME }}
         key: ${{ secrets.SERVER_SSH_KEY }}
         port: ${{ secrets.SERVER_PORT }}
-        source: "TMPS-0.0.1.jar"
+        source: "build/libs/TMPS-0.0.1.jar"
         target: "~/source"
-        debug: true
 
     - name: Start Service
       uses: appleboy/ssh-action@master

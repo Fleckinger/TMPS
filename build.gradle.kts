@@ -7,8 +7,12 @@ plugins {
     kotlin("plugin.spring") version "1.8.22"
 }
 
+allOpen {
+    annotation("javax.persistence.Entity")
+}
+
 group = "com.fleckinger"
-version = "0.0.1-SNAPSHOT"
+version = "0.0.1"
 
 java {
     sourceCompatibility = JavaVersion.VERSION_17
@@ -20,10 +24,15 @@ repositories {
 
 dependencies {
     implementation("org.springframework.boot:spring-boot-starter")
+    implementation("org.springframework.boot:spring-boot-starter-data-jpa")
+    implementation("org.postgresql:postgresql")
+    implementation("org.flywaydb:flyway-core:9.22.2")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
     implementation("org.telegram:telegrambots:6.8.0")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
+    testImplementation("org.mockito.kotlin:mockito-kotlin:5.1.0")
+
 }
 
 tasks.withType<KotlinCompile> {

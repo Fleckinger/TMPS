@@ -1,0 +1,20 @@
+server:
+  port: ${SERVER_PORT}
+
+spring:
+  datasource:
+    type: com.zaxxer.hikari.HikariDataSource
+    url: ${SPRING_DATASOURCE_URL}
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQL10Dialect
+    show-sql: true
+
+telegram:
+  bot-name: ${TELEGRAM_BOT_NAME}
+  bot-id: ${TELEGRAM_BOT_ID}
+  bot-token: ${TELEGRAM_BOT_TOKEN}
+
+application:
+  posting-delay: ${POSTING_DELAY}

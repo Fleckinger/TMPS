@@ -21,11 +21,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
+
     - name: Set up JDK 17
       uses: actions/setup-java@v3
       with:
         java-version: '17'
         distribution: 'temurin'
+
     - name: Build with Gradle
       uses: gradle/gradle-build-action@bd5760595778326ba7f1441bcf7e88b49de61a25 # v2.6.0
       with:
@@ -51,4 +53,4 @@ jobs:
         script: |
           sudo systemctl stop TMPS-0.0.1
           cd source/build/libs/
-          java -jar TMPS-0.0.1.jar --SERVER_PORT=${{ secrets.APP_SERVER_PORT }} --SPRING_DATASOURCE_URL=${{ secrets.SPRING_DATASOURCE_URL }} --SPRING_DATASOURCE_USERNAME=${{ secrets.SPRING_DATASOURCE_USERNAME }} --SPRING_DATASOURCE_PASSWORD=${{ secrets.SPRING_DATASOURCE_PASSWORD }} --TELEGRAM_BOT_NAME=${{ secrets.TELEGRAM_BOT_NAME }} --TELEGRAM_BOT_ID=${{ secrets.TELEGRAM_BOT_ID }} --TELEGRAM_BOT_TOKEN=${{ secrets.TELEGRAM_BOT_TOKEN }}  --POSTING_DELAY=${{ secrets.POSTING_DELAY }}
+          nohup java -jar TMPS-0.0.1.jar --SERVER_PORT=${{ secrets.APP_SERVER_PORT }} --SPRING_DATASOURCE_URL=${{ secrets.SPRING_DATASOURCE_URL }} --SPRING_DATASOURCE_USERNAME=${{ secrets.SPRING_DATASOURCE_USERNAME }} --SPRING_DATASOURCE_PASSWORD=${{ secrets.SPRING_DATASOURCE_PASSWORD }} --TELEGRAM_BOT_NAME=${{ secrets.TELEGRAM_BOT_NAME }} --TELEGRAM_BOT_ID=${{ secrets.TELEGRAM_BOT_ID }} --TELEGRAM_BOT_TOKEN=${{ secrets.TELEGRAM_BOT_TOKEN }}  --POSTING_DELAY=${{ secrets.POSTING_DELAY }}

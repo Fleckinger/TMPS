@@ -37,7 +37,7 @@ jobs:
         run: mv build/libs/$(ls build/libs) TMPS-0.0.1.jar
 
       - name: Upload artifact
-        uses: actions/upload-artifact@master
+        uses: actions/upload-artifact@v3
         with:
           name: jar-file
           path: TMPS-0.0.1.jar

@@ -54,9 +54,9 @@ jobs:
 
       - name: Download artifact
         uses: actions/download-artifact@master
-          with:
-            name: jar-file
-            path: TMPS-0.0.1.jar
+        with:
+          name: jar-file
+          path: TMPS-0.0.1.jar
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
@@ -85,6 +85,7 @@ jobs:
       - docker-build
     steps:
       - uses: actions/checkout@v3
+
       - name: Add Server key
         run: |
           touch key.txt && echo "${{ secrets.SERVER_SSH_KEY }}" > key.txt

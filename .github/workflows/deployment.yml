@@ -34,7 +34,7 @@ jobs:
           arguments: build
 
       - name: Copy Jar file
-          run: mv build/libs/$(ls build/libs) TMPS-0.0.1.jar
+        run: mv build/libs/$(ls build/libs) TMPS-0.0.1.jar
         uses: actions/upload-artifact@master
           with:
             name: jar-file

@@ -34,13 +34,13 @@ jobs:
           arguments: build
 
       - name: Copy Jar file
-        run: mv build/libs/$(ls build/libs) TMPS-0.0.1.jar
+        run: mv build/libs/$(ls build/libs) TMPS.jar
 
       - name: Upload artifact
         uses: actions/upload-artifact@v3
         with:
           name: jar-file
-          path: TMPS-0.0.1.jar
+          path: TMPS.jar
 
   docker-build:
     if: ${{ github.ref == 'refs/heads/main' }}
@@ -56,7 +56,7 @@ jobs:
         uses: actions/download-artifact@master
         with:
           name: jar-file
-          path: TMPS-0.0.1.jar
+          path: TMPS.jar
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3

@@ -1,6 +1,6 @@
 FROM eclipse-temurin
 RUN mkdir /app
-COPY TMPS-0.0.1.jar /app/TMPS-0.0.1.jar
+COPY TMPS.jar /app/TMPS.jar
 WORKDIR /app
 
 EXPOSE 8080

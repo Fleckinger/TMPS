@@ -37,10 +37,10 @@ jobs:
         run: mv build/libs/$(ls build/libs) TMPS-0.0.1.jar
 
       - name: Upload artifact
-      - uses: actions/upload-artifact@master
-          with:
-            name: jar-file
-            path: TMPS-0.0.1.jar
+        uses: actions/upload-artifact@master
+        with:
+          name: jar-file
+          path: TMPS-0.0.1.jar
 
   docker-build:
     if: ${{ github.ref == 'refs/heads/main' }}

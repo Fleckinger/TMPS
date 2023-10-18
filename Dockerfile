@@ -1,4 +1,7 @@
 FROM eclipse-temurin
-VOLUME /tmp
-COPY  build/libs/TMPS-0.0.1-SNAPSHOT.jar TMPS-0.0.1-SNAPSHOT.jar
-ENTRYPOINT ["java","-jar","/TMPS-0.0.1-SNAPSHOT.jar"]
+RUN mkdir /app
+COPY TMPS-0.0.1.jar /app/TMPS-0.0.1.jar
+WORKDIR /app
+
+EXPOSE 8080
+ENTRYPOINT ["java", "-jar", "app.jar"]

@@ -35,8 +35,8 @@ jobs:
 
       - name: Copy Jar file
         run: |
-        dir
-        mv build/libs/$(ls build/libs) TMPS.jar
+          dir
+          mv build/libs/$(ls build/libs) TMPS.jar
 
       - name: Upload artifact
         uses: actions/upload-artifact@v3

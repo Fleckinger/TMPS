@@ -1,7 +1,4 @@
-FROM eclipse-temurin
+FROM eclipse-temurin:17
 RUN mkdir /app
 COPY TMPS.jar /app/TMPS.jar
-WORKDIR /app
-
-EXPOSE 8081
-ENTRYPOINT ["java", "-jar", "TMPS.jar"]
+ENTRYPOINT ["java", "-jar", "/app/TMPS.jar"]

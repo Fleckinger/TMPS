@@ -3,7 +3,7 @@ echo "Start deployment script."
 
 start=$(date +"%s")
 echo "Trying establish SSH connection..."
-ssh -p ${SERVER_PORT} ${SERVER_USER}@${SERVER_IP_ADDRESS} -i key.txt -t -t -o StrictHostKeyChecking=no << 'ENDSSH'
+ssh -p ${SERVER_PORT} ${SERVER_USER}@${SERVER_HOST} -i key.txt -t -t -o StrictHostKeyChecking=no << 'ENDSSH'
 echo "SSH connection established."
 
 docker pull ${DOCKER_CONTAINER_NAME}:latest

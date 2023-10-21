@@ -439,7 +439,7 @@ class TelegramBotService(
             |
             |/edit_text *new_text* without asterisks - edit post text, reply with this command and new text to message which you want to edit/
             |
-            |/edit_date *new_post_date* without asterisks - edit post date, reply with this command to message which you want to edit. Date format is dd-MM-yyyy HH:mm, for example 14-09-2024 13:02.
+            |/edit_date *new_post_date* without asterisks - edit post date, reply with this command and new date to message which you want to edit. Date format is dd-MM-yyyy HH:mm, for example 14-09-2024 13:02.
             |
             |/remaining_posts - shows number of remaining scheduled posts. 
             |

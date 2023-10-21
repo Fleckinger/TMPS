@@ -89,7 +89,7 @@ jobs:
           SERVER_HOST: ${{ secrets.SERVER_IP_ADDRESS }}
           SERVER_PORT: ${{ secrets.SERVER_PORT }}
           SERVER_USER: ${{ secrets.SERVER_USERNAME }}
-          DOCKER_CONTAINER_NAME: ${{ secrets.DOCKERHUB_REPOSITORY_NAME }}
+          DOCKER_CONTAINER_NAME: ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.DOCKERHUB_REPOSITORY_NAME }}
           APP_SERVER_PORT: ${{ secrets.APP_SERVER_PORT }}
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
           DATABASE_USERNAME: ${{ secrets.DATABASE_USERNAME }}

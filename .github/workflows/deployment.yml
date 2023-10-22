@@ -106,20 +106,3 @@ jobs:
             docker run --detach --name ${{ secrets.DOCKERHUB_REPOSITORY_NAME }} -p 8082:8082 ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.DOCKERHUB_REPOSITORY_NAME }}:latest --SERVER_PORT=${{ secrets.APP_SERVER_PORT }} --SPRING_DATASOURCE_URL=jdbc:postgresql://${{ secrets.DATABASE_URL }} --SPRING_DATASOURCE_USERNAME=${{ secrets.DATABASE_USERNAME }} --SPRING_DATASOURCE_PASSWORD=${{ secrets.DATABASE_PASSWORD }} --TELEGRAM_BOT_NAME=${{ secrets.TELEGRAM_BOT_NAME }} --TELEGRAM_BOT_ID=${{ secrets.TELEGRAM_BOT_ID }} --TELEGRAM_BOT_TOKEN=${{ secrets.TELEGRAM_BOT_TOKEN }} --POSTING_DELAY=60000
 
             exit
-      #- name: Deploy the application
-      #  env:
-      #    SERVER_HOST: ${{ secrets.SERVER_IP_ADDRESS }}
-      #    SERVER_PORT: ${{ secrets.SERVER_PORT }}
-      #    SERVER_USER: ${{ secrets.SERVER_USERNAME }}
-      #    DOCKER_CONTAINER_NAME: ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.DOCKERHUB_REPOSITORY_NAME }}
-      #    APP_SERVER_PORT: ${{ secrets.APP_SERVER_PORT }}
-      #    DATABASE_URL: ${{ secrets.DATABASE_URL }}
-      #    DATABASE_USERNAME: ${{ secrets.DATABASE_USERNAME }}
-      #    DATABASE_PASSWORD: ${{ secrets.DATABASE_PASSWORD }}
-      #    TELEGRAM_BOT_NAME: ${{ secrets.TELEGRAM_BOT_NAME }}
-      #    TELEGRAM_BOT_ID: ${{ secrets.TELEGRAM_BOT_ID }}
-      #    TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
-      #  run: |
-      #    set -e
-      #    ./deploy.sh
-#

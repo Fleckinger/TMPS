@@ -93,8 +93,8 @@ jobs:
           key: ${{ secrets.SERVER_SSH_KEY }}
           port: ${{ secrets.SERVER_PORT }}
           script: |
-            docker pull ${DOCKER_CONTAINER_NAME}:latest
-            CONTAINER_NAME=${DOCKER_CONTAINER_NAME}
+            docker pull ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.DOCKERHUB_REPOSITORY_NAME }}:latest
+            CONTAINER_NAME=${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.DOCKERHUB_REPOSITORY_NAME }}
             if [ "$(docker ps -qa -f name=$CONTAINER_NAME)" ]; then
                 if [ "$(docker ps -q -f name=$CONTAINER_NAME)" ]; then
                     echo "Container is running -> stopping it..."
@@ -103,7 +103,7 @@ jobs:
             fi
             echo "Run docker container..."
 
-            docker run --detach --name $CONTAINER_NAME -p 8082:8082 ${DOCKER_CONTAINER_NAME}:latest --SERVER_PORT=${APP_SERVER_PORT} --SPRING_DATASOURCE_URL=jdbc:postgresql://${DATABASE_URL} --SPRING_DATASOURCE_USERNAME=${DATABASE_USERNAME} --SPRING_DATASOURCE_PASSWORD=${DATABASE_PASSWORD} --TELEGRAM_BOT_NAME=${TELEGRAM_BOT_NAME} --TELEGRAM_BOT_ID=${TELEGRAM_BOT_ID} --TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN} --POSTING_DELAY=60000
+            docker run --detach --name ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.DOCKERHUB_REPOSITORY_NAME }} -p 8082:8082 ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.DOCKERHUB_REPOSITORY_NAME }}:latest --SERVER_PORT=${{ secrets.APP_SERVER_PORT }} --SPRING_DATASOURCE_URL=jdbc:postgresql://${{ secrets.DATABASE_URL }} --SPRING_DATASOURCE_USERNAME=${{ secrets.DATABASE_USERNAME }} --SPRING_DATASOURCE_PASSWORD=${{ secrets.DATABASE_PASSWORD }} --TELEGRAM_BOT_NAME=${{ secrets.TELEGRAM_BOT_NAME }} --TELEGRAM_BOT_ID=${{ secrets.TELEGRAM_BOT_ID }} --TELEGRAM_BOT_TOKEN=${{ secrets.TELEGRAM_BOT_TOKEN }} --POSTING_DELAY=60000
 
             exit
       #- name: Deploy the application

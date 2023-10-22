@@ -6,6 +6,8 @@ echo "Trying establish SSH connection..."
 ssh -p ${SERVER_PORT} ${SERVER_USER}@${SERVER_HOST} -i key.txt -t -t -o StrictHostKeyChecking=no << 'ENDSSH'
 echo "SSH connection established."
 
+echo "${DOCKER_CONTAINER_NAME}"
+
 docker pull ${DOCKER_CONTAINER_NAME}:latest
 
 CONTAINER_NAME=${DOCKER_CONTAINER_NAME}

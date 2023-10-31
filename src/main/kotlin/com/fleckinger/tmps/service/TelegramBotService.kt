@@ -410,7 +410,7 @@ class TelegramBotService(
                 .filter { post -> post.user?.telegramUserId == telegramUserId }
 
             post.ifPresentOrElse({
-                it.postDate = LocalDateTime.now() //EDIT
+                it.postDate = timestamp
                 postService.save(it)
                 //TODO should be replied to original message
                 sendTextMessage(chatId, "Post date edited.")

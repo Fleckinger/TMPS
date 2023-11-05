@@ -18,3 +18,7 @@ telegram:
 
 application:
   posting-delay: ${POSTING_DELAY:60000}
+
+logging:
+  file:
+    name: ./logs/tmps.log

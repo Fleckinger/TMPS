@@ -103,6 +103,6 @@ jobs:
             fi
             echo "Run docker container..."
 
-            docker run --detach --name ${{ secrets.DOCKERHUB_REPOSITORY_NAME }} -p 8082:8082 -v /TMPS/logs:/logs ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.DOCKERHUB_REPOSITORY_NAME }}:latest --SERVER_PORT=${{ secrets.APP_SERVER_PORT }} --SPRING_DATASOURCE_URL=jdbc:postgresql://${{ secrets.DATABASE_URL }} --SPRING_DATASOURCE_USERNAME=${{ secrets.DATABASE_USERNAME }} --SPRING_DATASOURCE_PASSWORD=${{ secrets.DATABASE_PASSWORD }} --TELEGRAM_BOT_NAME=${{ secrets.TELEGRAM_BOT_NAME }} --TELEGRAM_BOT_ID=${{ secrets.TELEGRAM_BOT_ID }} --TELEGRAM_BOT_TOKEN=${{ secrets.TELEGRAM_BOT_TOKEN }} --POSTING_DELAY=60000
+            docker run --detach --rm --name ${{ secrets.DOCKERHUB_REPOSITORY_NAME }} -p 8082:8082 -v /TMPS/logs:/logs ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.DOCKERHUB_REPOSITORY_NAME }}:latest --SERVER_PORT=${{ secrets.APP_SERVER_PORT }} --SPRING_DATASOURCE_URL=jdbc:postgresql://${{ secrets.DATABASE_URL }} --SPRING_DATASOURCE_USERNAME=${{ secrets.DATABASE_USERNAME }} --SPRING_DATASOURCE_PASSWORD=${{ secrets.DATABASE_PASSWORD }} --TELEGRAM_BOT_NAME=${{ secrets.TELEGRAM_BOT_NAME }} --TELEGRAM_BOT_ID=${{ secrets.TELEGRAM_BOT_ID }} --TELEGRAM_BOT_TOKEN=${{ secrets.TELEGRAM_BOT_TOKEN }} --POSTING_DELAY=60000
 
             exit

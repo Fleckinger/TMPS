@@ -4,7 +4,9 @@ import com.fleckinger.tmps.model.Post
 import com.fleckinger.tmps.repository.PostRepository
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 import java.time.LocalDateTime
 import java.util.*
 
@@ -52,5 +54,13 @@ class PostService(private val postRepository: PostRepository) {
 
     fun hasMediaGroup(post: Post): Boolean {
         return post.hasMediaGroupId()
+    }
+
+    @Scheduled(cron = "0 0 9 * * TUE") //At 09:00 every Tuesday
+    @Transactional
+    fun deletePostedPosts() {
+        log.info("Deleting all posted posts.")
+
+        postRepository.deleteAllByIsPosted(true)
     }
 }

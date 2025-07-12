@@ -1,10 +1,10 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    id("org.springframework.boot") version "3.1.4"
-    id("io.spring.dependency-management") version "1.1.3"
-    kotlin("jvm") version "1.8.22"
-    kotlin("plugin.spring") version "1.8.22"
+    id("org.springframework.boot") version "3.2.0"
+    id("io.spring.dependency-management") version "1.1.4"
+    kotlin("jvm") version "1.9.21"
+    kotlin("plugin.spring") version "1.9.21"
 }
 
 allOpen {
@@ -30,6 +30,12 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
     implementation("org.telegram:telegrambots:6.8.0")
+    implementation("org.jboss.logging:jboss-logging")
+    implementation("org.hibernate.common:hibernate-commons-annotations:6.0.6.Final")
+    implementation("com.fasterxml:classmate:1.6.0")
+    implementation("javax.xml.bind:jaxb-api:2.3.1")
+    implementation("org.glassfish.jaxb:jaxb-runtime")
+    implementation("net.bytebuddy:byte-buddy")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.mockito.kotlin:mockito-kotlin:5.1.0")
 

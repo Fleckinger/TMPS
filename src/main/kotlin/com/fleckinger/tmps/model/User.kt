@@ -20,7 +20,7 @@ class User(
     @Column(name = "username")
     var username: String? = null,
 
-    @OneToMany(mappedBy = "user", cascade = [CascadeType.ALL], orphanRemoval = true)
+    @OneToMany(mappedBy = "user", orphanRemoval = true)
     var posts: MutableList<Post> = mutableListOf(),
 
     @Column(name = "time_zone")

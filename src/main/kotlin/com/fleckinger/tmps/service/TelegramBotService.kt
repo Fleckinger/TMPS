@@ -63,7 +63,7 @@ class TelegramBotService(
 
     @Scheduled(fixedDelayString = "\${application.posting-delay}")
     private fun sendScheduledPost() {
-        val startDate = LocalDateTime.now().minusMinutes(1)
+        val startDate = LocalDateTime.now().minusMinutes(5)
         val endDate = LocalDateTime.now()
 
         val posts = postService.getPostsBetweenDates(startDate, endDate, false)
